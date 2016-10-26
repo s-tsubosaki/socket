@@ -7,7 +7,7 @@ while true
   Thread.start(server.accept) do |socket|
     puts "#{socket.addr} is accepted"
     while msg = socket.gets
-      puts "server received : #{msg}"
+      puts "server received : #{msg.chomp} from #{socket.addr.last}"
       # echo message
       socket.puts(msg)
     end
