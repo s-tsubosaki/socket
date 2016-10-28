@@ -21,6 +21,6 @@ func main() {
         log.Println("error:", err)
     })
 
-    http.Handle("/socket.io", server)
+    http.Handle("/", server)
     http.ListenAndServe(":8080", nil)
 }
