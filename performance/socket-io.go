@@ -5,6 +5,7 @@ import (
     "net/http"
     "github.com/googollee/go-socket.io"
     "time"
+    "os"
 )
 
 func main() {
@@ -27,8 +28,16 @@ func main() {
         so.On("end", func(msg string) {
             end = time.Now()
             log.Println("performance: ", end.Sub(start))
-            log.Println("clients: ", server.Count())
         })
+
+        if(server.Count()==1){
+            start = time.Now()
+        }
+        if(server.Count()>=1000){
+            end = time.Now()
+            log.Println("clients: ", end.Sub(start))
+            os.Exit(0)
+        }
     })
 
     http.Handle("/", server)
