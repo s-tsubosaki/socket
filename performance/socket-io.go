@@ -15,9 +15,9 @@ func main() {
         log.Fatal(err)
     }
     server.On("connection", func(so socketio.Socket) {
-        log.Println("on connection")
+        //log.Println("on connection")
         so.On("disconnection", func() {
-            log.Println("on disconnect")
+            //log.Println("on disconnect")
         })
         so.On("run", func(msg string) {
         })
@@ -26,7 +26,8 @@ func main() {
         })
         so.On("end", func(msg string) {
             end = time.Now()
-            log.Println("receiveAll: ", end.Sub(start))
+            log.Println("performance: ", end.Sub(start))
+            log.Println("clients: ", server.Count())
         })
     })
 
