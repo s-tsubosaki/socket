@@ -6,9 +6,21 @@ import (
     "github.com/googollee/go-socket.io"
     "time"
     "os"
+    "encoding/json"
+    "io/ioutil"
 )
 
+type Setting struct {
+    MaxSend int `json:"max_send"`
+    MaxConn int `json:"max_conn"`
+}
+
 func main() {
+    var settings Setting
+    raw, err := ioutil.ReadFile("./settings.json")
+    json.Unmarshal(raw, &settings)
+    log.Println(settings)
+
     start := time.Now()
     end   := time.Now()
     server, err := socketio.NewServer([]string{"websocket"})
@@ -33,7 +45,7 @@ func main() {
         if(server.Count()==1){
             start = time.Now()
         }
-        if(server.Count()>=1000){
+        if(server.Count()>=settings.MaxConn){
             end = time.Now()
             log.Println("clients: ", end.Sub(start))
             os.Exit(0)

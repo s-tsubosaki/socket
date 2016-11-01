@@ -1,3 +1,6 @@
+var fs = require("fs");
+var max = JSON.parse(fs.readFileSync("./settings.json").toString())["max_conn"];
+
 var io = require('socket.io')(8080);
 io.transports = ['websocket'];
 
@@ -8,7 +11,6 @@ io.on('connection', function (socket) {
     //console.log('on disconnect');
   });
   socket.on('run', function (data) {
-    console.log(data);
   });
   socket.on('start', function (data) {
     console.time('performance');
@@ -19,7 +21,7 @@ io.on('connection', function (socket) {
 
   if(socket.client.conn.server.clientsCount==1){
     console.time('clients');
-  }else if(socket.client.conn.server.clientsCount>=1000){
+  }else if(socket.client.conn.server.clientsCount>=max){
     console.timeEnd('clients');
     process.exit(0);
   }
