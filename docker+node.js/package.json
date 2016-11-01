@@ -1,0 +1,16 @@
+{
+  "name": "chat",
+  "version": "1.0.0",
+  "description": "docker + node.js chat server",
+  "main": "chat.js",
+  "scripts": {
+    "start": "node chat.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "readline": "^1.3.0",
+    "socket.io": "^1.5.1",
+    "socket.io-client": "^1.5.1"
+  }
+}
