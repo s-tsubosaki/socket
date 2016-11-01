@@ -8,6 +8,7 @@ import (
     "os"
     "encoding/json"
     "io/ioutil"
+    "fmt"
 )
 
 type Setting struct {
@@ -15,18 +16,21 @@ type Setting struct {
     MaxConn int `json:"max_conn"`
 }
 
-func main() {
+func main() {    
     var settings Setting
     raw, err := ioutil.ReadFile("./settings.json")
     json.Unmarshal(raw, &settings)
-    log.Println(settings)
+    fmt.Println(settings)
 
-    start := time.Now()
-    end   := time.Now()
     server, err := socketio.NewServer([]string{"websocket"})
     if err != nil {
         log.Fatal(err)
     }
+    log.SetOutput(ioutil.Discard)
+
+    start := time.Now()
+    end   := time.Now()
+    server.SetMaxConnection(settings.MaxConn)
     server.On("connection", func(so socketio.Socket) {
         //log.Println("on connection")
         so.On("disconnection", func() {
@@ -34,20 +38,14 @@ func main() {
         })
         so.On("run", func(msg string) {
         })
-        so.On("start", func(msg string) {
-            start = time.Now()
-        })
         so.On("end", func(msg string) {
             end = time.Now()
-            log.Println("performance: ", end.Sub(start))
+            fmt.Println("performance: ", end.Sub(start))
         })
 
-        if(server.Count()==1){
-            start = time.Now()
-        }
         if(server.Count()>=settings.MaxConn){
             end = time.Now()
-            log.Println("clients: ", end.Sub(start))
+            fmt.Println("clients: ", end.Sub(start))
             os.Exit(0)
         }
     })

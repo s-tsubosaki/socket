@@ -1,4 +1,4 @@
 {
   "max_send": 25000,
-  "max_conn": 1000
+  "max_conn": 5000
 }
