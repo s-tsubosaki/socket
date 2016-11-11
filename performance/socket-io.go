@@ -43,6 +43,9 @@ func main() {
             fmt.Println("performance: ", end.Sub(start))
         })
 
+        if(server.Count()==1){
+            start = time.Now()
+        }
         if(server.Count()>=settings.MaxConn){
             end = time.Now()
             fmt.Println("clients: ", end.Sub(start))
