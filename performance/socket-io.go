@@ -48,7 +48,7 @@ func main() {
         }
         if(server.Count()>=settings.MaxConn){
             end = time.Now()
-            fmt.Println("clients: ", end.Sub(start))
+            fmt.Println("clients:", end.Sub(start).Seconds()*1000.0, "ms")
             os.Exit(0)
         }
     })
