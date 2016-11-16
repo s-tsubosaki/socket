@@ -21,6 +21,6 @@ io.on('connection', function (socket) {
     console.time('clients');
   }else if(socket.client.conn.server.clientsCount>=max){
     console.timeEnd('clients');
-    //process.exit(0);
+    process.exit(0);
   }
 });
