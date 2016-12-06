@@ -5,14 +5,10 @@
 # is restricted to this project.
 use Mix.Config
 
-# General application configuration
-config :phoenix_chat,
-  ecto_repos: [PhoenixChat.Repo]
-
 # Configures the endpoint
 config :phoenix_chat, PhoenixChat.Endpoint,
   url: [host: "localhost"],
-  secret_key_base: "NHCLIiOMeVDpT83dx9JKOo0yXb3awpsxXeDjlQOjjHBdYWsxTJmntx9iIxNw6uYl",
+  secret_key_base: "d64gVCG30VuJFOJsybAH0GItqH3YVTYB5KcXU85x9Q5Mmvv5DkvRUUPSnVNyU+79",
   render_errors: [view: PhoenixChat.ErrorView, accepts: ~w(html json)],
   pubsub: [name: PhoenixChat.PubSub,
            adapter: Phoenix.PubSub.PG2]
