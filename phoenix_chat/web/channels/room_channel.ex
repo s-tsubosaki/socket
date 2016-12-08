@@ -3,8 +3,7 @@ defmodule PhoenixChat.RoomChannel do
   require Logger
 
   def join("rooms:lobby", message, socket) do
-    connection_count = :ets.info(PhoenixChat.PubSub.Local0)[:size] + 1
-    Logger.info "(#{connection_count})"
+    Logger.info("joined")
     {:ok, socket}
   end
 end
