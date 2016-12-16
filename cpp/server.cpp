@@ -1,5 +1,5 @@
 #include <iostream>
-
+#include <boost/timer.hpp>
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
 
@@ -8,11 +8,18 @@ volatile static uint c_count = 0;
 
 void on_open(websocketpp::connection_hdl hdl) {
   c_count++;
-  std::cout << "connectted:" << c_count << std::endl;
+  //std::cout << "connectted:" << c_count << std::endl;
+  static boost::timer t;
+  if(c_count==1){
+    t.restart();
+  }
+  if(c_count==5000){
+    std::cout << "complete:" << t.elapsed() << std::endl;
+  }
 }
 void on_close(websocketpp::connection_hdl hdl) {
   c_count--;
-  std::cout << "disconnectted:" << c_count << std::endl;
+  //std::cout << "disconnectted:" << c_count << std::endl;
 }
 
 int main() {
