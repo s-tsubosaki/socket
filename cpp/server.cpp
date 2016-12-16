@@ -4,12 +4,14 @@
 #include <websocketpp/server.hpp>
 
 typedef websocketpp::server<websocketpp::config::asio> server;
+volatile static uint c_count = 0;
 
 void on_open(websocketpp::connection_hdl hdl) {
-  std::cout << "connectted" << std::endl;
+  std::cout << "connectted:" << ++c_count << std::endl;
 }
 void on_close(websocketpp::connection_hdl hdl) {
   std::cout << "disconnectted" << std::endl;
+  c_count--;
 }
 
 int main() {
@@ -17,6 +19,7 @@ int main() {
 
   s.set_open_handler(&on_open);
   s.set_close_handler(&on_close);
+  s.clear_access_channels(websocketpp::log::alevel::all);
 
   s.init_asio();
   s.listen(8080);
