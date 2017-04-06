@@ -65,16 +65,19 @@ module RUDP
               if command 
                 puts "reliable:#{command.type}:#{command.data}"
                 @recvs.delete_if{|r| r.seq == @recv_seq}
+                @recv_seq += 1
               end
             else 
               command = recv_command
               puts "unreliable:#{command.type}:#{command.data}"
             end
 
-            case command.type.to_sym
-            when :ack 
-              puts "acked:seq:#{command.data}"
-              remove_send_command(command.data)
+            if command
+              case command.type.to_sym
+              when :ack 
+                puts "acked:seq:#{command.data}"
+                remove_send_command(command.data)
+              end
             end
             sleep(0)
           end
@@ -175,6 +178,12 @@ module RUDP
         rescue => e  
           puts e
         end
+      end
+    end
+
+    def broadcast(data)
+      @clients.each do |id, client|
+        client.send(data)
       end
     end
   end
