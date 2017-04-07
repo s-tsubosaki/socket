@@ -1,5 +1,6 @@
 require 'socket'
 require 'json'
+require 'securerandom'
 
 module RUDP
   class Socket < UDPSocket
@@ -16,19 +17,21 @@ module RUDP
   class Command
     attr_accessor :type, :seq, :data
     attr_accessor :sent_at, :acked
-    attr_accessor :reliable
+    attr_accessor :reliable, :client_id
 
-    def initialize(type: nil, seq: nil, data: nil, reliable: false)
+    def initialize(client_id: nil, type: nil, seq: nil, data: nil, reliable: false)
       @type = type 
       @seq  = seq
       @data = data
       @sent_at = nil 
       @acked = false
       @reliable = reliable
+      @client_id = client_id
     end
 
     def to_packet
-      { type: @type, seq: @seq, data: @data, reliable: @reliable }.to_json
+      @seq = 0 unless @reliable
+      { client_id: @client_id, type: @type, seq: @seq, data: @data, reliable: @reliable }.to_json
     end
 
     def self.from_packet(packet)
@@ -42,6 +45,7 @@ module RUDP
   end
 
   class Client
+    attr_accessor :addr, :port
     def initialize(addr, port)
       @addr, @port = addr, port
       @rudp = RUDP::Socket.new
@@ -51,6 +55,7 @@ module RUDP
       @unreliables = []
       @recvs = []
       @recv_seq = 1
+      @id = nil
     end
 
     def run!
@@ -74,10 +79,15 @@ module RUDP
 
             if command
               case command.type.to_sym
+              when :connect 
+                @id = command.data
+                puts "connected:#{@id}"
               when :ack 
                 puts "acked:seq:#{command.data}"
                 remove_send_command(command.data)
               end
+
+              ack(command.seq) if command.reliable
             end
             sleep(0)
           end
@@ -101,10 +111,10 @@ module RUDP
       if reliable
         @mutex.synchronize do
           @seq += 1
-          @reliables << RUDP::Command.new(type: type, seq: @seq, data: data, reliable: reliable)
+          @reliables << RUDP::Command.new(client_id: @id, type: type, seq: @seq, data: data, reliable: reliable)
         end
       else 
-        @unreliables << RUDP::Command.new(type: type, seq: @seq, data: data, reliable: reliable)
+        @unreliables << RUDP::Command.new(client_id: @id, type: type, seq: @seq, data: data, reliable: reliable)
       end
     end
 
@@ -158,20 +168,24 @@ module RUDP
           @rudp.bind("0.0.0.0", @port)
           loop do
             command, info = @rudp.recv
-            connection_id = "#{info.last}:#{info[1]}"
-            puts connection_id
+            client_id = command.client_id || SecureRandom.hex(8)
             case command.type.to_sym
             when :connect
-              puts "new connection #{connection_id}"
-              @clients[connection_id] = RUDP::Client.new(info.last, info[1])
+              puts "new connection #{client_id}"
+              @clients[client_id] = RUDP::Client.new(info.last, info[1])
+              @clients[client_id].send(client_id, type: :connect)
             when :ack 
+              puts "acked:#{command.client_id}:#{command.seq}:#{command.data}"
               puts command.to_packet
-              @clients[connection_id].remove_send_command(command.seq)
+              @clients[client_id].remove_send_command(command.data)
             end
 
             if command.reliable
-              @clients[connection_id].ack(command.seq)
+              @clients[client_id].ack(command.seq)
             end
+
+            @clients[client_id].addr = info.last 
+            @clients[client_id].port = info[1]
             puts command.to_packet
             sleep(0)
           end
