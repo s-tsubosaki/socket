@@ -59,7 +59,7 @@ module RUDP
         begin
           loop do
             recv_command, info = @rudp.recv
-            if recv_command.reliable
+            if recv_command.reliable && recv_command.seq >= @recv_seq
               @recvs << recv_command
               command = @recvs.find{|r| r.seq == @recv_seq}
               if command 
