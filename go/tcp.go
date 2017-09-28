@@ -27,11 +27,11 @@ func main() {
 	buf := make([]byte, 1024)
 	for {
 		n, err := conn.Read(buf)
-		if n == 0 {
-			break
-		}
 		if err != nil {
 			fmt.Printf("Read error: %s\n", err)
+			_, ok := err.(net.Error)
+			fmt.Println(ok)
+			break
 		}
 		fmt.Print(string(buf[:n]))
 	}
