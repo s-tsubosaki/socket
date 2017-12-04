@@ -15,6 +15,7 @@
 
 #define PORT (5000)
 #define MAX_EVENTS (4096)
+#define BACKLOG (1024)
 
 int create_listener()
 {
@@ -41,7 +42,7 @@ int create_listener()
     exit(-1);
   }
 
-  if (listen(sock, 2048) < 0)
+  if (listen(sock, BACKLOG) < 0)
   {
     close(sock);
     perror("socket listen failed");
