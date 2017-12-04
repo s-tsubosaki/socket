@@ -38,35 +38,29 @@ public:
   }
   ~client()
   {
-    std::cout << "client close " << fd << std::endl;
-    ::close(fd);
     watcher.stop();
+    ::close(fd);
+    std::cout << "client close " << fd << std::endl;
   }
 
   void echo(ev::io &w, int)
   {
-    int cfd = w.fd;
     uint8_t buf[1024];
-    int n = ::read(cfd, buf, 1024);
+    int n = ::read(fd, buf, 1024);
     if (n <= 0)
     {
-      printf("read close client %d\n", cfd);
-      goto close;
+      printf("read close client %d\n", fd);
+      delete this;
     }
     else
     {
-      n = ::write(cfd, buf, n);
+      n = ::write(fd, buf, n);
       if (n < 0)
       {
-        printf("write close client %d\n", cfd);
-        goto close;
+        printf("write close client %d\n", fd);
+        delete this;
       }
     }
-
-    return;
-  close:
-    // suicide
-    delete this;
   }
 };
 
@@ -98,7 +92,7 @@ public:
       throw std::runtime_error("socket bind failed");
     }
 
-    if (listen(fd_, BACKLOG) < 0)
+    if (::listen(fd_, BACKLOG) < 0)
     {
       ::close(fd_);
       throw std::runtime_error("socket listen failed");
@@ -107,7 +101,7 @@ public:
 
   ~server()
   {
-    close(fd_);
+    ::close(fd_);
   }
 
   void accept(ev::io &w, int)
